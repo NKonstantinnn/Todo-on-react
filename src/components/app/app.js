@@ -17,7 +17,9 @@ export default class App extends Component {
       this.createTodoItem('Drink Cofee'),
       this.createTodoItem('Make Awesome App'),
       this.createTodoItem('Have a lunch')
-    ]
+    ],
+    term: '',
+    filter: 'all' // all, active, done
   };
 
   createTodoItem(label) {
@@ -25,7 +27,6 @@ export default class App extends Component {
       label, 
       important: false,
       done: false,
-      isShow: true,
       id: this.maxId++
     };
   }
@@ -83,67 +84,47 @@ export default class App extends Component {
     });
   };
 
-  onSearchItems = (text) => {
-    this.setState(({ todoData }) => {
-      const newTodoData = todoData.map((item) => {
-        const label = item.label.toUpperCase();
-        text = text.toUpperCase();
-        let newItem = { ...item };
-        if(text.length !== 0) {
-          newItem.isShow = label.indexOf(text) === 0 ? true : false;
-        }
-        else {
-          newItem.isShow = true;
-        }
-        return newItem;
-      });
+  onSearchChange  = (term) => {
+    this.setState({ term });
+  }
 
-      return {
-        todoData: newTodoData
-      };
-    });
-  };
+  onFilterChange  = (filter) => {
+    this.setState({ filter });
+  }
 
-  onShowAll = () => {
-    this.setState(({ todoData }) => {
-      const newTodoData = todoData.map((item) => {
-        const newItem = { ...item, isShow: true };
-        return newItem;
-      });
-      return {
-        todoData: newTodoData
-      };
+  search(items, term) {
+    if(term.length === 0) {
+      return items;
+    }
+    return items.filter((item) => {
+      return item.label
+      .toLowerCase()
+      .indexOf(term.toLowerCase()) > -1
     });
   }
 
-  onShowActive = () => {
-    this.setState(({ todoData }) => {
-      const newTodoData = todoData.map((item)=> {
-        let newItem = { ...item };
-        newItem.isShow = newItem.done ? false : true;
-        return newItem;
-      });
-      return {
-        todoData: newTodoData
-      };
-    });
-  }
+  filter(items, filter) {
+    switch(filter) {
+      case 'all': 
+        return items;
 
-  onShowDone = () => {
-    this.setState(({ todoData }) => {
-      const newTodoData = todoData.map((item)=> {
-        let newItem = { ...item };
-        newItem.isShow = newItem.done ? true : false;
-        return newItem;
-      });
-      return {
-        todoData: newTodoData
-      };
-    });
+      case 'active': 
+        return items.filter((item) => !item.done );
+
+        case 'done': 
+        return items.filter((item) => item.done );
+
+      default: 
+        return items;
+    }
   }
 
   render() {
-    const { todoData } = this.state
+    const { todoData, term, filter } = this.state
+
+    const visibleItems = this.filter(
+      this.search(todoData, term), filter);
+
     const doneCount = todoData.filter( (el) => el.done ).length;
     const todoCount  = todoData.length - doneCount;
     return (
@@ -151,15 +132,14 @@ export default class App extends Component {
         <AppHeader toDo={ todoCount } done={ doneCount } />
         <div className="top-panel d-flex">
           <SearchPanel
-            onSearched={ this.onSearchItems } />
+            onSearchChange={ this.onSearchChange } />
           <ItemStatusFilter
-            onShowAll={ this.onShowAll }
-            onShowActive={ this.onShowActive }
-            onShowDone={ this.onShowDone } />
+            filter={ filter }
+            onFilterChange={ this.onFilterChange } />
         </div>
 
         <TodoList
-          todos={todoData}
+          items={ visibleItems }
           onDeleted={ this.deleteItem }
           onToggleImportant={ this.onToggleImportant } 
           onToggleDone={ this.onToggleDone } />

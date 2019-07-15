@@ -4,8 +4,16 @@ import './search-panel.css';
 
 export default class SearchPanel extends Component {
 
-  onLabelChange = (e) => {
-    this.props.onSearched(e.target.value);
+  state = {
+    term: ''
+  };
+
+  onSearchChange = (e) => {
+    const term = e.target.value;
+    this.setState({
+      term: term
+    });
+    this.props.onSearchChange(term);
   }
 
   render() {
@@ -13,7 +21,8 @@ export default class SearchPanel extends Component {
     <input type="text"
               className="form-control search-input"
               placeholder="type to search"
-              onChange={ this.onLabelChange } />
+              value={ this.state.term }
+              onChange={ this.onSearchChange } />
     );
   };
 };
