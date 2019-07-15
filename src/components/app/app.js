@@ -88,13 +88,14 @@ export default class App extends Component {
       const newTodoData = todoData.map((item) => {
         const label = item.label.toUpperCase();
         text = text.toUpperCase();
+        let newItem = { ...item };
         if(text.length !== 0) {
-          item.isShow = label.indexOf(text) === 0 ? true : false;
+          newItem.isShow = label.indexOf(text) === 0 ? true : false;
         }
         else {
-            item.isShow = true;
+          newItem.isShow = true;
         }
-        return item;
+        return newItem;
       });
 
       return {
@@ -102,6 +103,44 @@ export default class App extends Component {
       };
     });
   };
+
+  onShowAll = () => {
+    this.setState(({ todoData }) => {
+      const newTodoData = todoData.map((item) => {
+        const newItem = { ...item, isShow: true };
+        return newItem;
+      });
+      return {
+        todoData: newTodoData
+      };
+    });
+  }
+
+  onShowActive = () => {
+    this.setState(({ todoData }) => {
+      const newTodoData = todoData.map((item)=> {
+        let newItem = { ...item };
+        newItem.isShow = newItem.done ? false : true;
+        return newItem;
+      });
+      return {
+        todoData: newTodoData
+      };
+    });
+  }
+
+  onShowDone = () => {
+    this.setState(({ todoData }) => {
+      const newTodoData = todoData.map((item)=> {
+        let newItem = { ...item };
+        newItem.isShow = newItem.done ? true : false;
+        return newItem;
+      });
+      return {
+        todoData: newTodoData
+      };
+    });
+  }
 
   render() {
     const { todoData } = this.state
@@ -113,7 +152,10 @@ export default class App extends Component {
         <div className="top-panel d-flex">
           <SearchPanel
             onSearched={ this.onSearchItems } />
-          <ItemStatusFilter />
+          <ItemStatusFilter
+            onShowAll={ this.onShowAll }
+            onShowActive={ this.onShowActive }
+            onShowDone={ this.onShowDone } />
         </div>
 
         <TodoList

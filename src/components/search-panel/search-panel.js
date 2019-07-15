@@ -2,11 +2,7 @@ import React, { Component } from 'react';
 
 import './search-panel.css';
 
-class SearchPanel extends Component {
-
-  state = {
-    label: ''
-  };
+export default class SearchPanel extends Component {
 
   onLabelChange = (e) => {
     this.props.onSearched(e.target.value);
@@ -21,5 +17,3 @@ class SearchPanel extends Component {
     );
   };
 };
-
-export default SearchPanel;
